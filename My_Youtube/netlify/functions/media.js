@@ -5,26 +5,25 @@ import path from 'path';
 export async function handler() {
   try {
     const mediaDir = path.join(process.cwd(), 'media');
-    const thumbDir = '/thumb'; // Netlify public klasörü
     const files = fs.readdirSync(mediaDir);
 
     const list = files.map(file => ({
       name: file,
       url: `/media/${file}`,
-      thumb: `${thumbDir}/${file}.jpg`
+      thumb: `/thumb/${file}.jpg`
     }));
 
     return {
       statusCode: 200,
       body: JSON.stringify(list),
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ error: err.message })
     };
   }
 }

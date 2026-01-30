@@ -12,32 +12,38 @@ body {
   padding: 24px;
 }
 h1 { margin-bottom: 16px }
-ul { list-style: none; padding-left: 20px }
-li { margin: 6px 0 }
 
 .folder {
+  cursor: pointer;
   font-weight: bold;
   color: #fbbf24;
-  margin-top: 10px;
+  margin: 12px 0;
 }
+
+ul {
+  list-style: none;
+  padding-left: 18px;
+  display: none;
+}
+
+li { margin: 6px 0 }
 
 a {
   color: #38bdf8;
   text-decoration: none;
 }
 a:hover { text-decoration: underline }
-
 </style>
 </head>
 <body>
 
-<h1>📂 Proje Dosyaları</h1>
-<div id="tree">Yükleniyor…</div>
+<h1>📂 Projeler</h1>
+<div id="root">Yükleniyor…</div>
 
 <script>
 const API = "https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
 
-async function load(path = "") {
+async function loadFolder(path) {
   const res = await fetch(API + path);
   const items = await res.json();
 
@@ -47,24 +53,58 @@ async function load(path = "") {
     let li = document.createElement("li");
 
     if (item.type === "dir") {
-      li.innerHTML = `<div class="folder">📁 ${item.name}</div>`;
-      li.appendChild(await load(item.path));
+      const title = document.createElement("div");
+      title.className = "folder";
+      title.textContent = "📁 " + item.name;
+
+      const child = await loadFolder(item.path);
+      title.onclick = () => {
+        child.style.display = child.style.display === "none" ? "block" : "none";
+      };
+
+      li.appendChild(title);
+      li.appendChild(child);
+      ul.appendChild(li);
     }
 
     if (item.type === "file" && item.name.endsWith(".html")) {
       li.innerHTML = `📄 <a href="${item.path}" target="_blank">${item.name}</a>`;
+      ul.appendChild(li);
     }
-
-    ul.appendChild(li);
   }
 
   return ul;
 }
 
-load().then(tree => {
-  document.getElementById("tree").innerHTML = "";
-  document.getElementById("tree").appendChild(tree);
-});
+async function init() {
+  const res = await fetch(API);
+  const rootItems = await res.json();
+
+  let container = document.createElement("div");
+
+  for (const item of rootItems) {
+    if (item.type === "dir") {
+      const folder = document.createElement("div");
+      folder.className = "folder";
+      folder.textContent = "📁 " + item.name;
+
+      const content = await loadFolder(item.path);
+      content.style.display = "none";
+
+      folder.onclick = () => {
+        content.style.display = content.style.display === "none" ? "block" : "none";
+      };
+
+      container.appendChild(folder);
+      container.appendChild(content);
+    }
+  }
+
+  document.getElementById("root").innerHTML = "";
+  document.getElementById("root").appendChild(container);
+}
+
+init();
 </script>
 
 </body>

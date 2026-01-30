@@ -2,46 +2,69 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>HTML Projelerim</title>
+<title>Projelerim</title>
+
 <style>
 body {
   font-family: system-ui, Arial;
   background: #0f172a;
-  color: white;
+  color: #e5e7eb;
   padding: 24px;
 }
 h1 { margin-bottom: 16px }
+ul { list-style: none; padding-left: 20px }
+li { margin: 6px 0 }
+
+.folder {
+  font-weight: bold;
+  color: #fbbf24;
+  margin-top: 10px;
+}
+
 a {
-  display: block;
-  padding: 14px;
-  margin: 10px 0;
-  background: #1e293b;
   color: #38bdf8;
   text-decoration: none;
-  border-radius: 10px;
-  transition: 0.2s;
 }
-a:hover { background: #334155 }
+a:hover { text-decoration: underline }
+
 </style>
 </head>
 <body>
 
-<h1>📁 Projeler</h1>
-<div id="list">Yükleniyor…</div>
+<h1>📂 Proje Dosyaları</h1>
+<div id="tree">Yükleniyor…</div>
 
 <script>
-fetch("https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/")
-  .then(r => r.json())
-  .then(files => {
-    let out = "";
-    files.forEach(f => {
-      if (f.name.endsWith(".html") && f.name !== "index.html") {
-        out += `<a href="${f.name}">${f.name}</a>`;
-      }
-    });
-    document.getElementById("list").innerHTML =
-      out || "Henüz HTML dosyası yok";
-  });
+const API = "https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
+
+async function load(path = "") {
+  const res = await fetch(API + path);
+  const items = await res.json();
+
+  let ul = document.createElement("ul");
+
+  for (const item of items) {
+    let li = document.createElement("li");
+
+    if (item.type === "dir") {
+      li.innerHTML = `<div class="folder">📁 ${item.name}</div>`;
+      li.appendChild(await load(item.path));
+    }
+
+    if (item.type === "file" && item.name.endsWith(".html")) {
+      li.innerHTML = `📄 <a href="${item.path}" target="_blank">${item.name}</a>`;
+    }
+
+    ul.appendChild(li);
+  }
+
+  return ul;
+}
+
+load().then(tree => {
+  document.getElementById("tree").innerHTML = "";
+  document.getElementById("tree").appendChild(tree);
+});
 </script>
 
 </body>

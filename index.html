@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>HTML Projelerim</title>
+<style>
+body {
+  font-family: system-ui, Arial;
+  background: #0f172a;
+  color: white;
+  padding: 24px;
+}
+h1 { margin-bottom: 16px }
+a {
+  display: block;
+  padding: 14px;
+  margin: 10px 0;
+  background: #1e293b;
+  color: #38bdf8;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+a:hover { background: #334155 }
+</style>
+</head>
+<body>
+
+<h1>📁 Projeler</h1>
+<div id="list">Yükleniyor…</div>
+
+<script>
+fetch("https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/")
+  .then(r => r.json())
+  .then(files => {
+    let out = "";
+    files.forEach(f => {
+      if (f.name.endsWith(".html") && f.name !== "index.html") {
+        out += `<a href="${f.name}">${f.name}</a>`;
+      }
+    });
+    document.getElementById("list").innerHTML =
+      out || "Henüz HTML dosyası yok";
+  });
+</script>
+
+</body>
+</html>

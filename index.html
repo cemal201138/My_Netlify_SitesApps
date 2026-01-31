@@ -7,7 +7,8 @@
 <style>
 :root{
   --bg:#020617;
-  --card:#020617;
+  --bg-grad:#000;
+  --card:rgba(255,255,255,.02);
   --border:#1e293b;
   --text:#e5e7eb;
   --muted:#94a3b8;
@@ -15,18 +16,65 @@
   --folder:#fbbf24;
 }
 
+.light{
+  --bg:#f8fafc;
+  --bg-grad:#e5e7eb;
+  --card:#ffffff;
+  --border:#cbd5f5;
+  --text:#020617;
+  --muted:#475569;
+  --accent:#0284c7;
+  --folder:#b45309;
+}
+
 *{box-sizing:border-box}
 
 body{
   font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background: radial-gradient(circle at top, #020617, #000);
+  background: radial-gradient(circle at top, var(--bg), var(--bg-grad));
   color: var(--text);
   padding: 32px;
 }
 
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+
 h1{
   font-size: 28px;
-  margin-bottom: 24px;
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+}
+
+input{
+  background: var(--card);
+  border:1px solid var(--border);
+  color: var(--text);
+  padding:8px 12px;
+  border-radius:8px;
+  outline:none;
+}
+
+button{
+  background: var(--card);
+  border:1px solid var(--border);
+  color: var(--text);
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button:hover,
+input:focus{
+  border-color: var(--accent);
 }
 
 #root{
@@ -34,11 +82,11 @@ h1{
 }
 
 .tree{
-  background: rgba(255,255,255,.02);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
 .folder{
@@ -50,11 +98,10 @@ h1{
   gap: 8px;
   padding: 6px 4px;
   border-radius: 8px;
-  transition: background .2s, transform .1s;
 }
 
 .folder:hover{
-  background: rgba(255,255,255,.04);
+  background: rgba(0,0,0,.05);
 }
 
 ul{
@@ -71,11 +118,14 @@ li{
 .file{
   padding: 4px 6px;
   border-radius: 6px;
-  transition: background .2s;
+}
+
+.file.hidden{
+  display:none;
 }
 
 .file:hover{
-  background: rgba(255,255,255,.04);
+  background: rgba(0,0,0,.05);
 }
 
 a{
@@ -97,16 +147,33 @@ a:hover{ text-decoration: underline }
 </head>
 <body>
 
-<h1>📂 Projeler</h1>
+<header>
+  <h1>📂 Projeler</h1>
+  <div class="controls">
+    <input id="search" placeholder="🔍 Proje ara...">
+    <button id="themeToggle">🌙 / ☀️</button>
+  </div>
+</header>
+
 <div id="root">Yükleniyor…</div>
 
 <script>
 const API = "https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
 
+// 🌗 Tema
+const savedTheme = localStorage.getItem("theme");
+if(savedTheme === "light") document.body.classList.add("light");
+
+document.getElementById("themeToggle").onclick = () => {
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme",
+    document.body.classList.contains("light") ? "light" : "dark"
+  );
+};
+
 async function loadFolder(path){
   const res = await fetch(API + path);
   const items = await res.json();
-
   const ul = document.createElement("ul");
 
   for(const item of items){
@@ -131,6 +198,7 @@ async function loadFolder(path){
 
     if(item.type === "file" && item.name.endsWith(".html")){
       li.className = "file";
+      li.dataset.name = item.name.toLowerCase();
       li.innerHTML = `📄 <a href="${item.path}" target="_blank">${item.name}</a>`;
       ul.appendChild(li);
     }
@@ -164,12 +232,19 @@ async function init(){
     }
   }
 
-  const root = document.getElementById("root");
-  root.innerHTML = "";
-  root.appendChild(tree);
+  document.getElementById("root").innerHTML = "";
+  document.getElementById("root").appendChild(tree);
 }
 
 init();
+
+// 🔍 Arama
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll(".file").forEach(f => {
+    f.classList.toggle("hidden", !f.dataset.name.includes(q));
+  });
+});
 </script>
 
 </body>

@@ -38,86 +38,74 @@ body{
 
 header{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:16px;
   margin-bottom:20px;
   flex-wrap:wrap;
 }
 
-h1{
-  font-size: 28px;
-}
+h1{font-size:28px}
 
 .controls{
   display:flex;
   gap:10px;
 }
 
-input{
+input, button{
   background: var(--card);
   border:1px solid var(--border);
   color: var(--text);
   padding:8px 12px;
   border-radius:8px;
-  outline:none;
 }
 
 button{
-  background: var(--card);
-  border:1px solid var(--border);
-  color: var(--text);
-  padding:8px 12px;
-  border-radius:8px;
   cursor:pointer;
 }
 
-button:hover,
-input:focus{
-  border-color: var(--accent);
+input:focus, button:hover{
+  border-color:var(--accent);
+  outline:none;
 }
 
-#root{
-  max-width: 900px;
-}
+#root{max-width:900px}
 
 .tree{
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px 20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
 }
 
 .folder{
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--folder);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
-  border-radius: 8px;
+  cursor:pointer;
+  font-weight:600;
+  color:var(--folder);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 4px;
+  border-radius:8px;
 }
 
 .folder:hover{
-  background: rgba(0,0,0,.05);
+  background:rgba(0,0,0,.05);
 }
 
 ul{
-  list-style: none;
-  padding-left: 18px;
-  margin-top: 6px;
-  display: none;
+  list-style:none;
+  padding-left:18px;
+  margin-top:6px;
+  display:none;
 }
 
-li{
-  margin: 6px 0;
-}
+li{margin:6px 0}
 
 .file{
-  padding: 4px 6px;
-  border-radius: 6px;
+  padding:4px 6px;
+  border-radius:6px;
 }
 
 .file.hidden{
@@ -125,26 +113,19 @@ li{
 }
 
 .file:hover{
-  background: rgba(0,0,0,.05);
+  background:rgba(0,0,0,.05);
 }
 
 a{
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 14px;
-}
-a:hover{ text-decoration: underline }
-
-.fade{
-  animation: fadeIn .25s ease;
+  color:var(--accent);
+  text-decoration:none;
+  font-size:14px;
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform: translateY(-4px)}
-  to{opacity:1; transform:none}
-}
+a:hover{text-decoration:underline}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -160,13 +141,14 @@ a:hover{ text-decoration: underline }
 <script>
 const API = "https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
 
-// 🌗 Tema
+// 🌙 Tema
 const savedTheme = localStorage.getItem("theme");
 if(savedTheme === "light") document.body.classList.add("light");
 
-document.getElementById("themeToggle").onclick = () => {
+themeToggle.onclick = () => {
   document.body.classList.toggle("light");
-  localStorage.setItem("theme",
+  localStorage.setItem(
+    "theme",
     document.body.classList.contains("light") ? "light" : "dark"
   );
 };
@@ -180,18 +162,18 @@ async function loadFolder(path){
     const li = document.createElement("li");
 
     if(item.type === "dir"){
-      const title = document.createElement("div");
-      title.className = "folder";
-      title.textContent = "📁 " + item.name;
+      const folder = document.createElement("div");
+      folder.className = "folder";
+      folder.textContent = "📁 " + item.name;
 
       const child = await loadFolder(item.path);
-      child.classList.add("fade");
+      child.style.display = "none";
 
-      title.onclick = () => {
+      folder.onclick = () => {
         child.style.display = child.style.display === "none" ? "block" : "none";
       };
 
-      li.appendChild(title);
+      li.appendChild(folder);
       li.appendChild(child);
       ul.appendChild(li);
     }
@@ -208,12 +190,11 @@ async function loadFolder(path){
 
 async function init(){
   const res = await fetch(API);
-  const rootItems = await res.json();
-
+  const items = await res.json();
   const tree = document.createElement("div");
   tree.className = "tree";
 
-  for(const item of rootItems){
+  for(const item of items){
     if(item.type === "dir"){
       const folder = document.createElement("div");
       folder.className = "folder";
@@ -221,7 +202,6 @@ async function init(){
 
       const content = await loadFolder(item.path);
       content.style.display = "none";
-      content.classList.add("fade");
 
       folder.onclick = () => {
         content.style.display = content.style.display === "none" ? "block" : "none";
@@ -232,17 +212,17 @@ async function init(){
     }
   }
 
-  document.getElementById("root").innerHTML = "";
-  document.getElementById("root").appendChild(tree);
+  root.innerHTML = "";
+  root.appendChild(tree);
 }
 
 init();
 
-// 🔍 Arama
-document.getElementById("search").addEventListener("input", e => {
+// 🔍 SADECE DOSYALARI FİLTRELER – KLASÖRLERE DOKUNMAZ
+search.addEventListener("input", e => {
   const q = e.target.value.toLowerCase();
-  document.querySelectorAll(".file").forEach(f => {
-    f.classList.toggle("hidden", !f.dataset.name.includes(q));
+  document.querySelectorAll(".file").forEach(file => {
+    file.classList.toggle("hidden", !file.dataset.name.includes(q));
   });
 });
 </script>

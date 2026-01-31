@@ -5,34 +5,94 @@
 <title>Projelerim</title>
 
 <style>
-body {
-  font-family: system-ui, Arial;
-  background: #0f172a;
-  color: #e5e7eb;
-  padding: 24px;
+:root{
+  --bg:#020617;
+  --card:#020617;
+  --border:#1e293b;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --accent:#38bdf8;
+  --folder:#fbbf24;
 }
-h1 { margin-bottom: 16px }
 
-.folder {
+*{box-sizing:border-box}
+
+body{
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background: radial-gradient(circle at top, #020617, #000);
+  color: var(--text);
+  padding: 32px;
+}
+
+h1{
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+#root{
+  max-width: 900px;
+}
+
+.tree{
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.folder{
   cursor: pointer;
-  font-weight: bold;
-  color: #fbbf24;
-  margin: 12px 0;
+  font-weight: 600;
+  color: var(--folder);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-radius: 8px;
+  transition: background .2s, transform .1s;
 }
 
-ul {
+.folder:hover{
+  background: rgba(255,255,255,.04);
+}
+
+ul{
   list-style: none;
   padding-left: 18px;
+  margin-top: 6px;
   display: none;
 }
 
-li { margin: 6px 0 }
-
-a {
-  color: #38bdf8;
-  text-decoration: none;
+li{
+  margin: 6px 0;
 }
-a:hover { text-decoration: underline }
+
+.file{
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background .2s;
+}
+
+.file:hover{
+  background: rgba(255,255,255,.04);
+}
+
+a{
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 14px;
+}
+a:hover{ text-decoration: underline }
+
+.fade{
+  animation: fadeIn .25s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform: translateY(-4px)}
+  to{opacity:1; transform:none}
+}
 </style>
 </head>
 <body>
@@ -43,21 +103,23 @@ a:hover { text-decoration: underline }
 <script>
 const API = "https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
 
-async function loadFolder(path) {
+async function loadFolder(path){
   const res = await fetch(API + path);
   const items = await res.json();
 
-  let ul = document.createElement("ul");
+  const ul = document.createElement("ul");
 
-  for (const item of items) {
-    let li = document.createElement("li");
+  for(const item of items){
+    const li = document.createElement("li");
 
-    if (item.type === "dir") {
+    if(item.type === "dir"){
       const title = document.createElement("div");
       title.className = "folder";
       title.textContent = "📁 " + item.name;
 
       const child = await loadFolder(item.path);
+      child.classList.add("fade");
+
       title.onclick = () => {
         child.style.display = child.style.display === "none" ? "block" : "none";
       };
@@ -67,41 +129,44 @@ async function loadFolder(path) {
       ul.appendChild(li);
     }
 
-    if (item.type === "file" && item.name.endsWith(".html")) {
+    if(item.type === "file" && item.name.endsWith(".html")){
+      li.className = "file";
       li.innerHTML = `📄 <a href="${item.path}" target="_blank">${item.name}</a>`;
       ul.appendChild(li);
     }
   }
-
   return ul;
 }
 
-async function init() {
+async function init(){
   const res = await fetch(API);
   const rootItems = await res.json();
 
-  let container = document.createElement("div");
+  const tree = document.createElement("div");
+  tree.className = "tree";
 
-  for (const item of rootItems) {
-    if (item.type === "dir") {
+  for(const item of rootItems){
+    if(item.type === "dir"){
       const folder = document.createElement("div");
       folder.className = "folder";
       folder.textContent = "📁 " + item.name;
 
       const content = await loadFolder(item.path);
       content.style.display = "none";
+      content.classList.add("fade");
 
       folder.onclick = () => {
         content.style.display = content.style.display === "none" ? "block" : "none";
       };
 
-      container.appendChild(folder);
-      container.appendChild(content);
+      tree.appendChild(folder);
+      tree.appendChild(content);
     }
   }
 
-  document.getElementById("root").innerHTML = "";
-  document.getElementById("root").appendChild(container);
+  const root = document.getElementById("root");
+  root.innerHTML = "";
+  root.appendChild(tree);
 }
 
 init();

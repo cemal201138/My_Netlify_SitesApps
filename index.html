@@ -60,9 +60,7 @@ input, button{
   border-radius:8px;
 }
 
-button{
-  cursor:pointer;
-}
+button{cursor:pointer}
 
 input:focus, button:hover{
   border-color:var(--accent);
@@ -90,9 +88,7 @@ input:focus, button:hover{
   border-radius:8px;
 }
 
-.folder:hover{
-  background:rgba(0,0,0,.05);
-}
+.folder:hover{background:rgba(0,0,0,.05)}
 
 ul{
   list-style:none;
@@ -108,13 +104,9 @@ li{margin:6px 0}
   border-radius:6px;
 }
 
-.file.hidden{
-  display:none;
-}
+.file.hidden{display:none}
 
-.file:hover{
-  background:rgba(0,0,0,.05);
-}
+.file:hover{background:rgba(0,0,0,.05)}
 
 a{
   color:var(--accent);
@@ -153,6 +145,14 @@ themeToggle.onclick = () => {
   );
 };
 
+// 🔠 Türkçe + büyük/küçük harf normalize fonksiyonu
+function normalizeText(text){
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 async function loadFolder(path){
   const res = await fetch(API + path);
   const items = await res.json();
@@ -180,7 +180,7 @@ async function loadFolder(path){
 
     if(item.type === "file" && item.name.endsWith(".html")){
       li.className = "file";
-      li.dataset.name = item.name.toLowerCase();
+      li.dataset.name = normalizeText(item.name);
       li.innerHTML = `📄 <a href="${item.path}" target="_blank">${item.name}</a>`;
       ul.appendChild(li);
     }
@@ -218,9 +218,9 @@ async function init(){
 
 init();
 
-// 🔍 SADECE DOSYALARI FİLTRELER – KLASÖRLERE DOKUNMAZ
-search.addEventListener("input", e => {
-  const q = e.target.value.toLowerCase();
+// 🔍 SADECE DOSYALARI FİLTRELER – TÜRKÇE + ENTER’SIZ
+search.addEventListener("input", () => {
+  const q = normalizeText(search.value);
   document.querySelectorAll(".file").forEach(file => {
     file.classList.toggle("hidden", !file.dataset.name.includes(q));
   });

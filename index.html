@@ -2,7 +2,10 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>My Websites deneme</title>
+<title>My Websites</title>
+
+<!-- ✅ FAVICON -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 
 <style>
 :root{
@@ -110,8 +113,10 @@ if(localStorage.getItem("theme")==="light")
 
 themeToggle.onclick=()=>{
   document.body.classList.toggle("light");
-  localStorage.setItem("theme",
-    document.body.classList.contains("light")?"light":"dark");
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("light")?"light":"dark"
+  );
 };
 
 // 🔠 Normalize
@@ -186,15 +191,19 @@ search.addEventListener("input",()=>{
   if(!q) return;
 
   document.querySelectorAll(".file").forEach(file=>{
-    const match=file.dataset.name.includes(q);
-    file.classList.toggle("hidden",!match);
+    file.classList.toggle(
+      "hidden",
+      !file.dataset.name.includes(q)
+    );
   });
 
   document.querySelectorAll(".folder").forEach(f=>{
     const hasVisible=f.nextElementSibling
       ?.querySelector(".file:not(.hidden)");
-    f.classList.toggle("hidden",
-      !hasVisible && !f.dataset.name.includes(q));
+    f.classList.toggle(
+      "hidden",
+      !hasVisible && !f.dataset.name.includes(q)
+    );
   });
 });
 </script>

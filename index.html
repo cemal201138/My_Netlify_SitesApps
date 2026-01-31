@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>My Websites</title>
+<title>My Websites deneme</title>
 
 <style>
 :root{
@@ -102,7 +102,7 @@ a{
 <div id="root">Yükleniyor…</div>
 
 <script>
-const API = "https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
+const API="https://api.github.com/repos/cemal201138/My_Netlify_SitesApps/contents/";
 
 // 🌙 Tema
 if(localStorage.getItem("theme")==="light")
@@ -176,32 +176,25 @@ async function init(){
 }
 init();
 
-// 🔍 YENİ AKILLI ARAMA
+// 🔍 ARAMA – KLASÖR AÇMADAN
 search.addEventListener("input",()=>{
   const q=norm(search.value);
 
-  document.querySelectorAll("ul").forEach(u=>u.style.display="none");
-  document.querySelectorAll(".file,.folder").forEach(e=>e.classList.remove("hidden"));
+  document.querySelectorAll(".file,.folder")
+    .forEach(e=>e.classList.remove("hidden"));
 
   if(!q) return;
 
   document.querySelectorAll(".file").forEach(file=>{
     const match=file.dataset.name.includes(q);
     file.classList.toggle("hidden",!match);
-
-    if(match){
-      let p=file.parentElement;
-      while(p){
-        if(p.tagName==="UL") p.style.display="block";
-        p=p.parentElement;
-      }
-    }
   });
 
   document.querySelectorAll(".folder").forEach(f=>{
     const hasVisible=f.nextElementSibling
       ?.querySelector(".file:not(.hidden)");
-    f.classList.toggle("hidden",!hasVisible && !f.dataset.name.includes(q));
+    f.classList.toggle("hidden",
+      !hasVisible && !f.dataset.name.includes(q));
   });
 });
 </script>
